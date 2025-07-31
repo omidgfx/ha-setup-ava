@@ -1,0 +1,38 @@
+vrrp_script chk_mysql {
+    script "/etc/keepalived/check_mysql.sh"
+    interval 3
+    weight -20
+}
+
+vrrp_script chk_galera {
+    script "/etc/keepalived/check_galera.sh"
+    interval 3
+    weight -20
+}
+
+vrrp_script chk_drbd {
+    script "/etc/keepalived/check_drbd.sh"
+    interval 3
+    weight -20
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface enp0s8
+    virtual_router_id 51
+    priority 90
+    advert_int 1
+    notify /etc/keepalived/notify.sh
+    authentication {
+        auth_type PASS
+        auth_pass secret123
+    }
+    virtual_ipaddress {
+        192.168.56.200
+    }
+    track_script {
+        chk_mysql
+        chk_galera
+        chk_drbd
+    }
+}
